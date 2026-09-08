@@ -7,7 +7,7 @@ Name:		xz
 # perl-Compress-Raw-Lzma, it has a strict xz version dep
 Epoch:		1
 Version:	5.6.2
-Release:	4%{?dist}
+Release:	4%{?dist}.1
 
 # liblzma - 0BSD
 # xz{,dec}, lzma{dec,info} - 0BSD
@@ -26,6 +26,13 @@ Source2:	https://tukaani.org/misc/lasse_collin_pubkey.txt
 Source100:	colorxzgrep.sh
 Source101:	colorxzgrep.csh
 Patch1: xz-cve-2025-31115.patch
+
+#https://github.com/tukaani-project/xz/commit/c8c22869e780ff57c96b46939c3d79ff99395f87
+Patch2: CVE-2026-34743.patch
+#Test for the CVE-2026-34743
+#It however needs special build config to fail (it passes even without the CVE fix in our environment)
+#See: https://github.com/tukaani-project/xz/issues/233
+Patch3: CVE-2026-34743-test.patch
 
 URL:		https://tukaani.org/%{name}/
 Requires:	%{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
@@ -178,6 +185,11 @@ LD_LIBRARY_PATH=$PWD/src/liblzma/.libs make check
 
 
 %changelog
+* Fri Aug 21 2026 Jakub Martisko <jamartis@redhat.com> - 1:5.6.2-4.1
+- Fix: a buffer overflow in lzma_index_append()
+- Add test for the issue above (needs a special build config to actually fail -> does not fail in our environemnt)
+- Resolves: CVE-2026-34743
+
 * Tue May 13 2025 Jakub Martisko <jamartis@redhat.com> - 1:5.6.2-4
 - Fix: heap-use-after-free bug in threaded .xz decoder (CVE-2025-31115)
 - Resolves: RHEL-86029
