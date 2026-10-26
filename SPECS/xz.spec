@@ -4,7 +4,7 @@
 Summary:	LZMA compression utilities
 Name:		xz
 Version:	5.2.5
-Release:	8%{?dist}
+Release:	8%{?dist}.1
 
 # Scripts xz{grep,diff,less,more} and symlinks (copied from gzip) are
 # GPLv2+, binaries are Public Domain (linked against LGPL getopt_long but its
@@ -18,6 +18,13 @@ Source101:	colorxzgrep.csh
 
 Patch1:   xz-5.2.5-enable_CET.patch
 Patch2:   xz-5.2.5-cve-2022-1271.patch
+
+#https://github.com/tukaani-project/xz/commit/c8c22869e780ff57c96b46939c3d79ff99395f87
+Patch3: CVE-2026-34743.patch
+#Test for CVE-2026-34743
+#It however needs special build config to fail (it passes even without the CVE fix in our environment)
+#See: https://github.com/tukaani-project/xz/issues/233
+#Patch4: CVE-2026-34743-test.patch
 
 URL:		https://tukaani.org/%{name}/
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
@@ -161,6 +168,11 @@ LD_LIBRARY_PATH=$PWD/src/liblzma/.libs make check
 
 
 %changelog
+* Tue Sep 29 2026 Jakub Martisko <jamartis@redhat.com> - 5.2.5-8.1
+- Fix: a buffer overflow in lzma_index_append()
+- Add test for the issue above (needs a special build config to actually fail -> does not fail in our environment)
+- Resolves: CVE-2026-34743
+
 * Tue May 31 2022 Matej Mužila <mmuzila@redhat.com> - 5.2.5-8
 - Fix arbitrary file write vulnerability
   Resolves: CVE-2022-1271
